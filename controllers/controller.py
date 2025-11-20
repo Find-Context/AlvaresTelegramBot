@@ -4,8 +4,9 @@ import asyncio
 app = FastAPI()
 LOG_FILE = "var/logs/my_app.log"
 
-#Controller responsible for data transmission via websocket.
-#this endpoint looks at changes in log file and sends it by request of user
+
+# Controller responsible for data transmission via websocket.
+# this endpoint looks at changes in log file and sends it by request of user
 @app.websocket("/ws/logs")
 async def websocket_endpoint(websocket: WebSocket):
     await websocket.accept()

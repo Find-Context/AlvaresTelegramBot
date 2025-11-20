@@ -1,12 +1,10 @@
-from typing import Type
-
-from numpy import ndarray
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import SQLAlchemyError
-from .models import Chat, Message
+from models import Chat, Message
 
 # This function takes session, id of message from telegram, text of message and chat id, It creates new message
 # entity and validate
+
 
 def ensure_chat_exists(session: Session, chat_id: int) -> bool:
     try:
@@ -19,6 +17,7 @@ def ensure_chat_exists(session: Session, chat_id: int) -> bool:
     except SQLAlchemyError as e:
         session.rollback()
         raise e
+
 
 # This function takes sesstion, id of message from telegram, text of message and chat id, It creates new message
 # entity and validates data. As validation here is checking of chat entity existing and similarity check
@@ -36,6 +35,7 @@ def save_message(session: Session, message_id: int, embeddings, chat_id: int) ->
     except SQLAlchemyError as e:
         session.rollback()
         raise e
+
 
 # here function takes session and chat id, it returns list of message objects from database
 def get_all_messages_by_chat(session: Session, chat_id: int):

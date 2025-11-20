@@ -1,4 +1,4 @@
-import ollama
+# import ollama
 
 from aiogram import F, Router
 from aiogram.filters import CommandStart, Command

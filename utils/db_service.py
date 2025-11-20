@@ -8,7 +8,7 @@ from db.repository import save_message, get_all_messages_by_chat
 
 from sentence_transformers import SentenceTransformer
 
-model = SentenceTransformer('all-MiniLM-L6-v2')
+model = SentenceTransformer("all-MiniLM-L6-v2")
 from sklearn.metrics.pairwise import cosine_similarity
 from numpy import argmax
 
@@ -35,7 +35,11 @@ class Database:
     def save_message(self, message_id, text, chat_id):
         session = db.create_session()
         try:
-            embedding = model.encode([text, ]).tolist()
+            embedding = model.encode(
+                [
+                    text,
+                ]
+            ).tolist()
             save_message(session, message_id, embedding, chat_id)
         except Exception as e:
             error = traceback.format_exc()
@@ -60,7 +64,11 @@ class Database:
         for message in messages:
             repo_list.append(message.embeddings[0])
 
-        embedding = model.encode([context, ])
+        embedding = model.encode(
+            [
+                context,
+            ]
+        )
 
         similirities = cosine_similarity(embedding, repo_list)
 
