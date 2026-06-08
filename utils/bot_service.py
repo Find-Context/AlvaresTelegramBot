@@ -11,4 +11,4 @@ class MyBot:
     dispatcher = Dispatcher()
 
 
-bs = MyBot()
+bot = MyBot()
