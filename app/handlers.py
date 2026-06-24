@@ -1,3 +1,5 @@
+import asyncio
+
 from aiogram import F, Router
 from aiogram.filters import CommandStart, Command
 from aiogram.types import Message, CallbackQuery, ReplyKeyboardRemove
@@ -57,9 +59,26 @@ async def register_context(message: Message, state: FSMContext) -> None:
     await state.clear()
 
 
+@router.message(Command("spin"))
+async def spin_luck(message: Message) -> None:
+    await message.answer("Лудка епт 🎰")
+
+    attempts = 0
+    while True:
+        attempts += 1
+        dice = await message.answer_dice(emoji="🎰")
+
+        if dice.dice.value == 64:
+            await message.answer(f" Jack pot {attempts} attempts")
+            break
+
+        await asyncio.sleep(1.5)
+
+
 import requests
 from datetime import datetime
-SERVER_URL = "http://localhost:1000/messages/insert"
+
+SERVER_URL = "http://100.103.24.101:1000/messages/insert"
 
 
 @router.message()
@@ -69,11 +88,11 @@ async def echo(message: Message) -> None:
             "chat_id": message.chat.id,
             "message_id": message.message_id,
             "type": "text",
-            "text": message.text or "",
+            "text": message.text,
             "created_at": datetime.now().isoformat()
         }
 
-        response = requests.post(SERVER_URL, json=payload, timeout=2)
+        response = requests.post(SERVER_URL, json=payload)
         # print(f"Message: {message.text}, Type: {type(message.text)}, User: {message.from_user.id}, Chat: {message.chat.id}")
     except TypeError:
         await message.answer("Nice try")
