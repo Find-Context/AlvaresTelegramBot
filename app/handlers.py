@@ -72,7 +72,7 @@ async def spin_luck(message: Message) -> None:
             await message.answer(f" Jack pot {attempts} attempts")
             break
 
-        await asyncio.sleep(1.5)
+        await asyncio.sleep(2)
 
 
 import requests
