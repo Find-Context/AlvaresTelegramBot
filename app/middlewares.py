@@ -19,7 +19,8 @@ class TestMiddleware(BaseMiddleware):
         else:
             print(f"[Middleware] Unknown event type: {type(event)}")
 
-        result = await handler(event, data)
-
         print("[Middleware] Middleware triggered")
-        return result
+        print(f"Message: {event.text}, Type: {type(event.text)}, User: {event.from_user.id}, Chat: {event.chat.id}, Message ID: {event.message_id}")
+
+        # Important: pass the event to the next handler and return its result
+        return await handler(event, data)

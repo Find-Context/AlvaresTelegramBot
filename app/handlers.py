@@ -1,4 +1,4 @@
-# import ollama
+import asyncio
 
 from aiogram import F, Router
 from aiogram.filters import CommandStart, Command
@@ -9,12 +9,9 @@ from aiogram.fsm.context import FSMContext
 import app.keyboards as kb
 from app.middlewares import TestMiddleware
 
-from utils.db_service import db
-
-from utils.bot_service import bs
+from utils import bot
 
 router = Router()
-# state_router = Router()
 
 router.message.middleware(TestMiddleware())
 
@@ -24,8 +21,6 @@ class Reg(StatesGroup):
 
 
 # Command handlers
-
-
 @router.message(CommandStart())
 async def send_welcome(message: Message) -> None:
     await message.answer("Hello there! 😊", reply_markup=kb.start)
@@ -61,57 +56,44 @@ async def register_context(message: Message, state: FSMContext) -> None:
     await state.update_data(context=message.text)
     data = await state.get_data()
 
-    message_id = db.get_best_fit(data["context"], message.chat.id)
-
-    # find message with this id and send it to user
-
-    await bs.bot.send_message(
-        chat_id=message.chat.id, text="Abra kadabra", reply_to_message_id=message_id
-    )
-
-    # for msg in messages:
-    #     message_list += msg.text + "\n"
-    # prompt = f"""
-    # Ты — интеллектуальный помощник. Найди наиболее релевантное сообщение по смыслу из списка, которое лучше всего соответствует запросу пользователя.
-    #
-    # Запрос пользователя:
-    # "{data["context"]}"
-    #
-    # Сообщения в чате:
-    # {message_list}
-    #
-    # Ответь только текст наиболее подходящего сообщения.
-    # """
-    #
-    # try:
-    #     assistant_response = ollama.generate(
-    #         model="gemma3:latest",
-    #         prompt=prompt,
-    #         stream=False,
-    #         options={
-    #             "temperature": 0.2,
-    #             "num_predict": 2000
-    #         }
-    #     )
-    #
-    #     await message.answer(assistant_response["response"])
-    #
-    # except TypeError:
-    #     await message.answer("Nice try")
-    # except ollama.ResponseError as e:
-    #     await message.answer(f"{e.error}")
-    # except Exception as e:
-    #     await message.answer(f"{str(e)}")
-
     await state.clear()
+
+
+@router.message(Command("spin"))
+async def spin_luck(message: Message) -> None:
+    await message.answer("Лудка епт 🎰")
+
+    attempts = 0
+    while True:
+        attempts += 1
+        dice = await message.answer_dice(emoji="🎰")
+
+        if dice.dice.value == 64:
+            await message.answer(f" Jack pot {attempts} attempts")
+            break
+
+        await asyncio.sleep(2)
+
+
+import requests
+from datetime import datetime
+
+SERVER_URL = "http://100.103.24.101:1000/messages/insert"
 
 
 @router.message()
 async def echo(message: Message) -> None:
     try:
-        db.save_message(
-            message_id=message.message_id, text=message.text, chat_id=message.chat.id
-        )
+        payload = {
+            "chat_id": message.chat.id,
+            "message_id": message.message_id,
+            "type": "text",
+            "text": message.text,
+            "created_at": datetime.now().isoformat()
+        }
+
+        response = requests.post(SERVER_URL, json=payload)
+        # print(f"Message: {message.text}, Type: {type(message.text)}, User: {message.from_user.id}, Chat: {message.chat.id}")
     except TypeError:
         await message.answer("Nice try")
     except Exception as e:
