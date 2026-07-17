@@ -97,7 +97,7 @@ async def echo(message: Message) -> None:
     except TypeError:
         await message.answer("Nice try")
     except Exception as e:
-        await message.answer(f"{str(e)}")
+        print(f"{str(e)}")
 
 
 @router.callback_query(F.data == "about")
