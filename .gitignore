@@ -211,3 +211,7 @@ __marimo__/
 
 # Bot stuff:
 chat.db
+
+# Volume files
+./database
+./data
