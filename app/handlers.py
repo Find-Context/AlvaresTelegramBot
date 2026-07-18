@@ -1,10 +1,12 @@
 import asyncio
+import os
 
 from aiogram import F, Router
 from aiogram.filters import CommandStart, Command
 from aiogram.types import Message, CallbackQuery, ReplyKeyboardRemove
 from aiogram.fsm.state import StatesGroup, State
 from aiogram.fsm.context import FSMContext
+from dotenv import load_dotenv
 
 import app.keyboards as kb
 from app.middlewares import TestMiddleware
@@ -78,8 +80,8 @@ async def spin_luck(message: Message) -> None:
 import requests
 from datetime import datetime
 
-SERVER_URL = "http://100.103.24.101:1000/messages/insert"
-
+load_dotenv()
+CS_IP = os.getenv("CS_IP")
 
 @router.message()
 async def echo(message: Message) -> None:
@@ -92,7 +94,7 @@ async def echo(message: Message) -> None:
             "created_at": datetime.now().isoformat()
         }
 
-        response = requests.post(SERVER_URL, json=payload)
+        response = requests.post("http://" + CS_IP + ":1000/messages/insert", json=payload)
         # print(f"Message: {message.text}, Type: {type(message.text)}, User: {message.from_user.id}, Chat: {message.chat.id}")
     except TypeError:
         await message.answer("Nice try")
