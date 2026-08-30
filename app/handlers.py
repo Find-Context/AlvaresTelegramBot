@@ -13,6 +13,12 @@ from app.middlewares import TestMiddleware
 
 from utils import bot
 
+import requests
+from datetime import datetime
+
+load_dotenv()
+CS_IP = os.getenv("CS_IP")
+
 router = Router()
 
 router.message.middleware(TestMiddleware())
@@ -38,6 +44,25 @@ async def send_help(message: Message) -> None:
 async def send_text(callback: CallbackQuery, state: FSMContext) -> None:
     await state.set_state(Reg.context)
     await callback.message.answer(text="Write your request:", reply_markup=kb.main)
+    await state.update_data(context="text")
+    data = await state.get_data()
+    user_text = data["context"]
+
+    try:
+        payload = {
+            "chat_id": user_text.chat.id,
+            "message_id": user_text.message_id,
+            "type": "text",
+            "text": user_text.text,
+            "created_at": datetime.now().isoformat()
+        }
+
+        response = requests.post("http://" + CS_IP + ":1000/messages/fast_search", json=payload)
+        # print(f"Message: {message.text}, Type: {type(message.text)}, User: {message.from_user.id}, Chat: {message.chat.id}")
+    except TypeError:
+        await user_text.answer("Nice try")
+    except Exception as e:
+        print(f"{str(e)}")
 
 
 @router.message(Reg.context)
@@ -75,13 +100,6 @@ async def spin_luck(message: Message) -> None:
             break
 
         await asyncio.sleep(2)
-
-
-import requests
-from datetime import datetime
-
-load_dotenv()
-CS_IP = os.getenv("CS_IP")
 
 @router.message()
 async def echo(message: Message) -> None:
