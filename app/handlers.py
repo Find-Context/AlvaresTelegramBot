@@ -59,6 +59,7 @@ async def send_text(callback: CallbackQuery, state: FSMContext) -> None:
 
         response = requests.post("http://" + CS_IP + ":1000/messages/fast_search", json=payload)
         # print(f"Message: {message.text}, Type: {type(message.text)}, User: {message.from_user.id}, Chat: {message.chat.id}")
+        await callback.message.answer(response.text)
     except TypeError:
         await user_text.answer("Nice try")
     except Exception as e:
